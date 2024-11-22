@@ -68,6 +68,14 @@ vector<int> getShowOrder(int start, int end) {
     output_ordert.push_back(start);
     return output_ordert;
   }
+  if (start == 3 && end == 6) {
+    output_ordert = {3, 2, 6};
+    return output_ordert;
+  }
+  if (start == 6 && end == 3) {
+    output_ordert = {6, 2, 3};
+    return output_ordert;
+  }
   vector<int> current_order1 = {1, 0, 2, 3, 4, 5, 6};
   vector<int> current_order2 = {1, 0, 2, 6, 5, 4, 3};
   vector<int> current_order3 = {6, 5, 4, 3, 2, 0, 1};
@@ -104,13 +112,13 @@ vector<int> getShowOrder(int start, int end) {
     return {};
   }
 
-  cout << "nonEmptyVectors" << nonEmptyVectors.size() << endl;
-  for (auto i: nonEmptyVectors) {
-    for (auto j: i) {
-      cout << j << " ";
-    }
-    cout << endl;
-  }
+  // cout << "nonEmptyVectors" << nonEmptyVectors.size() << endl;
+  // for (auto i: nonEmptyVectors) {
+  //   for (auto j: i) {
+  //     cout << j << " ";
+  //   }
+  //   cout << endl;
+  // }
 
   int min_vec = 0;
   for (int i = 0; i < nonEmptyVectors.size(); ++i) {
@@ -206,7 +214,7 @@ void Walk::Go2Point(Point target_point){
 }
 
 float thre = 4.5;
-void Walk::Go2PointTangentBug(Point target_point){
+void Walk::Go2PointBug0(Point target_point){
   // get the current position of the robot
   double x = now_position.x;
   double y = now_position.y;
@@ -255,17 +263,17 @@ void Walk::Go2PointTangentBug(Point target_point){
 
   if (i != -1)
   {
-    cout << "障碍物角度: " << i << endl;
-    cout<<"障碍物深度: "<<lidar_depths[i]<<endl;
-    cout<<"yaw: "<<now_yaw<<endl;
+    // cout << "障碍物角度: " << i << endl;
+    // cout<<"障碍物深度: "<<lidar_depths[i]<<endl;
+    // cout<<"yaw: "<<now_yaw<<endl;
     
-    cout<<"x: "<<x<<" y: "<<y<<endl;
+    // cout<<"x: "<<x<<" y: "<<y<<endl;
     // 2. 计算障碍物的边缘点的坐标
     float x_obstacle = x + lidar_depths[i] * sin(i * M_PI / 180 + now_yaw);
     float y_obstacle = y + lidar_depths[i] * cos(i * M_PI / 180 + now_yaw);
 
 
-    cout<<"目标角度:"<<theta_target<<endl;
+    // cout<<"目标角度:"<<theta_target<<endl;
 
     // 3. 检查障碍物边缘点是否在目标点的前方
     // 如果在目标点的前方，就绕行
@@ -280,32 +288,32 @@ void Walk::Go2PointTangentBug(Point target_point){
       temp_yaw += 2 * M_PI;
     }
 
-    cout<<"temp_yaw: "<<temp_yaw<<endl;
+    // cout<<"temp_yaw: "<<temp_yaw<<endl;
 
     if(temp_yaw > M_PI/3 && temp_yaw < 2 * M_PI/3){
         if(x_obstacle < x_target){
-          cout<<"障碍物在目标点的前方"<<endl;
+          // cout<<"障碍物在目标点的前方"<<endl;
           obstacled = 1;
           ratio1 = 1;
       }
     }
     else if(temp_yaw > -2 * M_PI/3 && temp_yaw < -M_PI/3){
         if(x_obstacle > x_target){
-          cout<<"障碍物在目标点的前方"<<endl;
+          // cout<<"障碍物在目标点的前方"<<endl;
           obstacled = 1;
           ratio1 = -1;
       }
     }
     else if(temp_yaw > -M_PI/3 && temp_yaw < M_PI/3){
         if(y_obstacle > y_target){
-          cout<<"障碍物在目标点的前方"<<endl;
+          // cout<<"障碍物在目标点的前方"<<endl;
           obstacled = 1;
           ratio1 = -1;
       }
     }
     else{
         if(y_obstacle < y_target){
-          cout<<"障碍物在目标点的前方"<<endl;
+          // cout<<"障碍物在目标点的前方"<<endl;
           obstacled = 1;
           ratio1 = 1;
       }
@@ -320,9 +328,9 @@ void Walk::Go2PointTangentBug(Point target_point){
     {
       // 障碍物在目标点的前方
       // 绕行
-      cout << "绕行" << endl;
-      cout<<"ratio1:"<<ratio1<<endl;
-      cout<<"x_obstacle: "<<x_obstacle<<" y_obstacle: "<<y_obstacle<<endl;
+      // cout << "绕行" << endl;
+      // cout<<"ratio1:"<<ratio1<<endl;
+      // cout<<"x_obstacle: "<<x_obstacle<<" y_obstacle: "<<y_obstacle<<endl;
       Go2Point({x_obstacle - thre*ratio1, y_obstacle + thre*ratio1});
     }
     else
@@ -566,8 +574,9 @@ void PathPlanning::showInOrder() {
   bool isWalking = true;
 
   bool isWorking = false;
-  int current_key = 0;
-  int last_current_key = 0;
+  int current_key = -1;
+  int last_current_key = -1;
+  int current_p = 0;
   while (true) {
     controller->checkIfFallen();
     controller->GetNowPosition();
@@ -598,6 +607,9 @@ void PathPlanning::showInOrder() {
         case 'S':
           isWorking = false;
           break;
+        case '0':
+          current_key = 0;
+          break;
         case '1':
           current_key = 1;
           break;
@@ -625,26 +637,28 @@ void PathPlanning::showInOrder() {
     }
     if (controller->mKeyboard->getKey() == -1)  //没有键盘键入
     {
+      // cout<<"current_key: "<<current_key<<endl;
+      // cout<<"current_p: "<<current_p<<endl;
       if (isWorking) 
       {
-        if (current_key != 0 && current_key != last_current_key) 
+        if (current_key != last_current_key || current_key == -1) 
         {
           int current_point = 0;
           float current_distance = 1000.0f;
           for (int i = 0; i <= 6; ++i) {
             if (get_distance(controller->now_position, key_points[i].p) < current_distance) {
               current_point = i;
+              current_p = i;
               current_distance = get_distance(controller->now_position, key_points[i].p);
             }
           }
           vector<int> show_order = getShowOrder(current_point, current_key);
           // controller->wait(200);
 
-          cout << "current_point: " << current_point << " current_key: " << current_key <<endl;
-          for (int i: show_order) {
-            cout << i << " ";
-          }
-          cout << endl;
+          // for (int i: show_order) {
+          //   cout << i << " ";
+          // }
+          // cout << endl;
 
           if (!show_order.empty()) 
           {
@@ -653,14 +667,12 @@ void PathPlanning::showInOrder() {
             current_step = 0;
           }
           last_current_key = current_key;
-          current_key = 0;
+          current_key = -1;
         }
         // cout << "keyboard g" << endl;
         switch (PathPlanning::robotStatu)
         {
         case RobotStatu_e::START:
-          // cout << "START" << endl;
-          
           if (current_step < int(show_order.size())) {
             PathPlanning::robotStatu = RobotStatu_e::RUNNING;
           }
@@ -672,30 +684,25 @@ void PathPlanning::showInOrder() {
           // cout << "RUNNING" << endl;
           controller->GetNowPosition();
           if (get_distance(controller->now_position, key_points[show_order[current_step]].p) < 0.2) {
-            // cout<< "REV" << controller->now_yaw << key_points[show_order[current_step]].yaw <<endl;
             PathPlanning::robotStatu = RobotStatu_e::REVOLVE;
           }
           else {
-            controller->Go2PointTangentBug(key_points[show_order[current_step]].p);
+            controller->Go2PointBug0(key_points[show_order[current_step]].p);
           }
-
-          //判断是否处于自动移动状态  // TODO: 自由移动
           if (isAutoMove()) {
             PathPlanning::robotStatu = RobotStatu_e::AUTO_MOVE;
           }
           break;
 
-        case RobotStatu_e::AUTO_MOVE: // TODO: 自由移动
-          // 判断是否处于自动移动状态
+        case RobotStatu_e::AUTO_MOVE:
           if (!isAutoMove()) {
             PathPlanning::robotStatu = RobotStatu_e::RUNNING;
           }
           break;
 
         case RobotStatu_e::REVOLVE:
-          // cout << "REVOLVE" << endl;
-          if ((fabs(controller->now_yaw - key_points[show_order[current_step]].yaw) < 0.1 || fabs(fabs(controller->now_yaw - key_points[show_order[current_step]].yaw) - 2*M_PI)  < 0.1 ) || key_points[show_order[current_step]].yaw == NOT_REVOLVE) {
-            if (current_step == show_order.size() - 1) {
+          if ((fabs(controller->now_yaw - key_points[show_order[current_step]].yaw) < 0.1 || fabs(fabs(controller->now_yaw - key_points[show_order[current_step]].yaw) - 2*M_PI)  < 0.1 ) || key_points[show_order[current_step]].yaw == NOT_REVOLVE || current_step != show_order.size() - 1) {
+            if ((current_step == show_order.size() - 1) && show_order[current_step] != 0) {
               PathPlanning::robotStatu = RobotStatu_e::SHOW;
             }
             
@@ -715,7 +722,6 @@ void PathPlanning::showInOrder() {
             controller->RevolveYaw(key_points[show_order[current_step]].yaw);
           }
           break;
-
         case RobotStatu_e::SHOW:
             // cout << "SHOW" << endl;
             controller->RaiseArmToShow(isWalking);
@@ -727,7 +733,6 @@ void PathPlanning::showInOrder() {
             controller->wait(200);
           break;
         case RobotStatu_e::OFF:
-          
           break;
         default:
           break;
@@ -738,6 +743,35 @@ void PathPlanning::showInOrder() {
 
     // step
     controller->myStep();
+    
+    if (isWorking) {
+      if (current_key != -1) {
+        if ((current_step >= show_order.size() - 1) && PathPlanning::robotStatu == RobotStatu_e::OFF) {
+          cout << "已到达" << show_order[show_order.size()-1] << "号展品"<< endl;
+        }
+        else {
+        cout << "出发坐标: (" << key_points[current_p].p.x << "," << key_points[current_p].p.y << ")" << 
+        " 目标坐标: (" << key_points[current_key].p.x << "," << key_points[current_key].p.y << ")" << endl;
+        }
+        if (show_order[show_order.size()-1] != 0) {
+          cout << "正在前往展品："<<show_order[show_order.size()-1] << "号展品" <<endl;
+        }
+        else {
+          cout << "返回0号点位"<< endl;
+        }
+      }
+      else if (current_key == -1) {
+        cout << "请选择目标展品" << endl;
+      }
+
+    }
+    else {
+      cout << "请按G键开启导航" << endl;
+    }
+
+
+
+
   }
 
 

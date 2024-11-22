@@ -97,7 +97,7 @@ public:
   void GetNowPosition();
   void GetLidarData();
 
-  void Go2PointTangentBug(Point target_point);
+  void Go2PointBug0(Point target_point);
 
   void GetDistanceSensorsValues();
   int mTimeStep;
