@@ -6,7 +6,7 @@
 
 ## Run：
 
-* After you start the simulation, you should to press the spacebar twice to enter the gait mode.
+* After you start the simulation, you should press the spacebar twice to enter the gait mode.
 * And then you could press "G" to enter the navigation system
 * Press 1,2,3,4,5,6 to change the target.
 
