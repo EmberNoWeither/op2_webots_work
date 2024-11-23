@@ -21,6 +21,10 @@ If you are lucky, the robot will move rightly! :laughing:
 * A simple PathPlan algorithm
 * A simple hand raising case by controling the servo directly
 
+## Docs:
+  For a better experience of reading, [I recommennd you read my feishu docs](https://bupt-robotteam.feishu.cn/docx/X11Ad6Tq0oevk7xPuvYcv3WLnbT?from=from_copylink).
+
+  I record my core idea in this doc and welcome to your comment. 🌻
 
 
 ## NOTES:
